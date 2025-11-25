@@ -16,15 +16,15 @@ type2ext = {
 ext2type = {}
 
 # ext is stored as key and type as value for easier and faster lookups
-for key in type2ext.keys:
+for key in type2ext:
     value = type2ext[key]
     for ext in value:
         ext2type[ext] = key
 
 name = "test_"
-target_dir = os.abs(argv[1])
+target_dir = os.path.abspath(argv[1])
 
-for key in ext2type.keys:
+for key in ext2type:
     filename = name + ext2type[key] + key
     destination = os.path.join(target_dir, filename)
     if os.path.exists(destination):
