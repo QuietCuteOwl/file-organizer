@@ -35,6 +35,9 @@ for key in type2ext:
 
 CURRENT_SCRIPT = os.path.basename(__file__)
 
+files_to_move = 0
+files_moved = 0
+
 # loops over every item in the input_dir
 for filename in os.listdir(input_dir):
     # if filename is dir or the current_script, skip this iteration
@@ -56,19 +59,27 @@ for filename in os.listdir(input_dir):
         os.mkdir(abs_target_dir)
 
     destination_path = os.path.join(abs_target_dir, filename)
+    # omit the /filename from the destination_path
     head_dst_path, _ = os.path.split(destination_path)
     n = 1
-
+    # while the destination_path exists
+    # (there is already a file named filename in the destination folder)
+    # change the destination_path to ../filename(n).xyz
     while os.path.exists(destination_path):
+        # name = name(n) where n is the number of files with the same name - 1
         name = name + '(' + str(n) + ')'
         new_filename = name + extension
         destination_path = os.path.join(head_dst_path, new_filename)
         n += 1
     
-    print(os.path.abspath(filename))
+    # abs path of the filename
+    filepath = os.path.join(os.path.abspath(input_dir), filename)
+    files_to_move += 1
+
     try:
-        shutil.move(os.path.abspath(filename), destination_path)
-        print(f"{filename} => \n{destination_path} \nsuccess!")
+        shutil.move(filepath, destination_path)
+        print(f"{filename} => \n{destination_path}")
+        files_moved += 1
     except FileNotFoundError:
         print("Source file not found")
     except PermissionError:
@@ -76,4 +87,5 @@ for filename in os.listdir(input_dir):
     except Exception as e:
         print(f"Error: {e}")
 
-print("Completed")
+print()
+print(f"{files_moved} / {files_to_move} files were moved successfully")
