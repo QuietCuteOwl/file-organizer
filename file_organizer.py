@@ -28,7 +28,7 @@ type2ext = {
 ext2type = {}
 
 # ext is stored as key and type as value for easier and faster lookups
-for key in type2ext.keys:
+for key in type2ext:
     value = type2ext[key]
     for ext in value:
         ext2type[ext] = key
@@ -65,11 +65,12 @@ for filename in os.listdir(input_dir):
         destination_path = os.path.join(head_dst_path, new_filename)
         n += 1
     
+    print(os.path.abspath(filename))
     try:
-        shutil.move(abs(filename), destination_path)
+        shutil.move(os.path.abspath(filename), destination_path)
         print(f"{filename} => \n{destination_path} \nsuccess!")
     except FileNotFoundError:
-        print("Source file")
+        print("Source file not found")
     except PermissionError:
         print("Permission denied. Unable to move the file.")
     except Exception as e:
