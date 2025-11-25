@@ -1,34 +1,78 @@
+from sys import argv, exit
+import os
+import shutil
 
-# take cmd line input for input dir and output dir
-# validate cmd line args
-## if the input dir doesn't exist, let the user know and exit
-## if the output dir doesn't exist, create one in the path this program is running
+# checks if the number of cmd ln args is not correct
+if len(argv) != 3:
+    print("Usage: Python script input_dir output_dir")
+    exit(1)
 
-# in a dict
-## store file extensions as value and file type as key
-### for eg: "Image": ['.jpg', '.bmp', '.etc']
+input_dir = argv[1]
+output_dir = argv[2]
 
-# create a new dict and store the file extensions as key (from the previous dict) &&
-# the file types as value (from the previous dict)
-# for a faster and easier lookup
+# checks if the input_dir is not a dir
+if not os.path.isdir(input_dir):
+    print("Invalid input dir")
+    exit(2)
+# checks if the output_dir is not a dir
+if not os.path.isdir(output_dir):
+    os.mkdir(argv[2])
 
-# in the input dir, loop over every file/dir as filename
-## if filename is a dir or filename is __file__
-### go to the next iteration
-## seperate the name and the extension of file
-### store the extension in a var
-## empty var target_dir
-## index into the dict with the extension as the key
-### if the key doesn't correspond to a value
-#### target_dir = "Others"
-### else
-#### target_dir = "{value}"
-## if the target_dir not exists in the output_dir
-### create target_dir in output_dir
-## target_path = abspath(target_dir) + lastpart(filename)
-## n = 1
-## while the target_path exists
-### filename = name_part(filename) + str(n) + extension_part(filename)
-### target_path = abspath(target_dir) + filename
-## move filename from where it is to target_path
-# end
+type2ext = {
+    "Image": ['.jpg', '.jpeg', '.bmp', '.png'],
+    "Video": ['.mp4', '.avi', '.mov', '.mkv'],
+    "Code":  ['.html', '.htm', '.css', '.c', '.cpp', '.js', '.ts', '.py'],
+    "Document": ['.csv', '.txt'],
+}
+
+ext2type = {}
+
+# ext is stored as key and type as value for easier and faster lookups
+for key in type2ext.keys:
+    value = type2ext[key]
+    for ext in value:
+        ext2type[ext] = key
+
+CURRENT_SCRIPT = os.path.basename(__file__)
+
+# loops over every item in the input_dir
+for filename in os.listdir(input_dir):
+    # if filename is dir or the current_script, skip this iteration
+    if os.path.isdir(filename) or filename == CURRENT_SCRIPT:
+        continue
+
+    # store the extension of filename
+    name, extension = os.path.splitext(filename)
+    # target_dir is the dir name in which the current file destined to go
+    target_dir = ext2type.get(extension)
+
+    if target_dir is None:
+        target_dir = "Others"
+    
+    abs_target_dir = os.path.join(output_dir, target_dir)
+
+    # if the target dir not exists in the output_dir then mkdir 
+    if not os.path.isdir(abs_target_dir):
+        os.mkdir(abs_target_dir)
+
+    destination_path = os.path.join(abs_target_dir, filename)
+    head_dst_path, _ = os.path.split(destination_path)
+    n = 1
+
+    while os.path.exists(destination_path):
+        name = name + '(' + str(n) + ')'
+        new_filename = name + extension
+        destination_path = os.path.join(head_dst_path, new_filename)
+        n += 1
+    
+    try:
+        shutil.move(abs(filename), destination_path)
+        print(f"{filename} => \n{destination_path} \nsuccess!")
+    except FileNotFoundError:
+        print("Source file")
+    except PermissionError:
+        print("Permission denied. Unable to move the file.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+print("Completed")
