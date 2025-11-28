@@ -1,66 +1,147 @@
-# create main_container
-# pack it
-# create container for directory selection inside main_container
-# pack it (expand x)
-#  Inside dir_container
-## Input dir label on the left
-## Input_dir entry in the middle
-## Input_dir browse button (connected to a tk.String() textvar)
-## below input dir
-## Output_dir label on the left
-## Output_dir entry in the middle
-## Output_dir browse button (connected to a tk.String() textvar)
-# create extension_management container (LabelFrame)
-# pack it
-# Inside extension_management container
-## Create a tree_view container
-## pack it
-## Inside tree_view container
-### Create a tree_view with columns(extensions, folders), mode browse
-### Inside tree_view
-#### set heading, width of column, and pack the tree_view
-### add a scrollbar (as scrollbar) inside tree_view container, cmd=self.tree.yview (to connect it to the tree_view)
-### pack the scrollbar
-### link the tree back to the scrollbar with
-#### self.tree.configure(yscrollcommand=scrollbar.set)
-# create controls_container
-# pack it
-# Inside controls_container
-## Label named extension @ grid(0, 0)
-## Entry for extension @ grid(0, 1)
-## Label named Folder type @ grid(0, 2)
-## Entry for Folder type @ grid(0, 3)
-## add/update button to add/update a pair @ 0, 4
-## remove button to remove the selected pair @ 0, 5
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
 
-# A func to browse_input_dir connected to input_browse btn
-## directory = filedialog.askdirectory() # to open file manager
-## if directory (if user selected a path)
-## set the input_entry's content to the selected directory's path via the tk.StringVar()
-# Do the same as above for output_browse btn aswell
-#
-# A func to add/update the tree_view
-## get the ext from the ext entry and folder from folder entry
-## first check if both of them are filled
-## if not then messagebox.error them
-## set a var found = false
-## for item in self.tree.get_children()
-## self.tree (tree_view), .get_children() (returns a unique id of every row)
-### values = self.tree.item(item, "values")
-### .item(id, data), id is the row id, data is what data is requested from that row
-### if the values[0] (the ext for a row) == extension (entered by user):
-#### update that row with the given extension and folder_type
-#### found = true and break
-##
-## if not found:
-### insert the given data into the tree
-##
-## clear both entries to take new values
-##
-#
-# a func for when remove btn is clicked
-## get the selected row by self.tree.selection()
-## if there is something selected
-### delete that row
-## else
-### show warning via errorbox
+
+class UI:
+    def __init__(self, root) -> None:
+        self.root = root
+        self.root.title("File Organizer")
+        self.root.geometry("600x550")
+
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        main_container = ttk.Frame(self.root)
+        main_container.pack(fill=tk.BOTH, expand=True)
+
+        dir_container = ttk.LabelFrame(main_container, text="Directory Selection")
+        dir_container.pack(fill=tk.X)
+
+        ttk.Label(dir_container, text="Input Directory: ").grid(
+            row=0, column=0, sticky=tk.W
+        )
+        self.input_dir_var = tk.StringVar()
+        ttk.Entry(dir_container, textvariable=self.input_dir_var).grid(
+            row=0, column=1, sticky=tk.W
+        )
+        ttk.Button(dir_container, text="Browse", command=self.browse_input_dir).grid(
+            row=0, column=2, sticky=tk.W
+        )
+
+        ttk.Label(dir_container, text="Output Directory: ").grid(
+            row=1, column=0, sticky=tk.W
+        )
+        self.output_dir_var = tk.StringVar()
+        ttk.Entry(dir_container, textvariable=self.output_dir_var).grid(
+            row=1, column=1, sticky=tk.W
+        )
+        ttk.Button(dir_container, text="Browse", command=self.browse_output_dir).grid(
+            row=1, column=2, sticky=tk.W
+        )
+
+        ext_container = ttk.LabelFrame(main_container, text="Extension: Folder")
+        ext_container.pack(fill=tk.BOTH, expand=True)
+
+        tree_view_container = ttk.Frame(ext_container)
+        tree_view_container.pack(fill=tk.BOTH, expand=True)
+
+        scrollbar = ttk.Scrollbar(tree_view_container)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        columns = ("extensions", "folders")
+
+        self.tree = ttk.Treeview(
+            tree_view_container,
+            columns=columns,
+            selectmode="browse",
+            show="headings",
+            yscrollcommand=scrollbar.set,
+        )
+
+        scrollbar.config(command=self.tree.yview)
+
+        self.tree.heading("extensions", text="Extensions")
+        self.tree.heading("folders", text="Folders")
+        self.tree.column("extensions", width=150)
+        self.tree.column("folders", width=250)
+        self.tree.pack(fill=tk.BOTH, expand=True)
+
+        controls_container = ttk.Frame(main_container)
+        controls_container.pack(fill=tk.X)
+
+        ttk.Label(controls_container, text="Extention: ").grid(row=0, column=0)
+        self.ext_entry_text = tk.StringVar()
+        ttk.Entry(controls_container, textvariable=self.ext_entry_text).grid(
+            row=0, column=1
+        )
+
+        ttk.Label(controls_container, text="Folder: ").grid(row=0, column=2)
+        self.folder_entry_text = tk.StringVar()
+        ttk.Entry(controls_container, textvariable=self.folder_entry_text).grid(
+            row=0, column=3
+        )
+
+        ttk.Button(
+            controls_container, text="add/update", command=self.add_update_row
+        ).grid(row=0, column=4)
+
+        ttk.Button(
+            controls_container, text="remove", command=self.remove_selected
+        ).grid(row=0, column=5)
+
+    def browse_input_dir(self):
+        directory = filedialog.askdirectory()
+        if directory:
+            self.input_dir_var.set(directory)
+        return
+
+    def browse_output_dir(self):
+        directory = filedialog.askdirectory()
+        if directory:
+            self.output_dir_var.set(directory)
+        return
+
+    def add_update_row(self):
+        ext = self.ext_entry_text.get().strip()
+        folder = self.folder_entry_text.get().strip()
+
+        if not ext or not folder:
+            messagebox.showwarning(
+                "Input Error", "Please provide both extention and folder name"
+            )
+            return
+
+        found = False
+
+        for item in self.tree.get_children():
+            values = self.tree.item(item, "values")
+
+            if values[0] == ext:
+                self.tree.item(item, values=(ext, folder))
+                found = True
+                break
+
+        if not found:
+            self.tree.insert("", tk.END, values=(ext, folder))
+
+        self.ext_entry_text = ""
+        self.folder_entry_text = ""
+
+        return
+
+    def remove_selected(self):
+        selected = self.tree.selection()
+
+        if selected:
+            self.tree.delete(selected)
+        else:
+            messagebox.showwarning("Nothing Selected")
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = UI(root)
+    root.mainloop()
