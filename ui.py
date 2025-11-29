@@ -180,8 +180,8 @@ class UI:
     def remove_selected(self):
         selected = self.tree.selection()
         if selected:
+            ext, type = self.tree.item(selected[0], "values")
             self.tree.delete(selected)
-            ext, type = self.tree.item(selected, "values")
             self.remove_default(ext=ext, type=type)
         else:
             messagebox.showwarning("Selection Error", "Please select an item to remove")
