@@ -1,53 +1,46 @@
 # File Organizer
 
-A simple yet powerful Python script to organize your files into directories based on their file extensions.
+Effortlessly organize your files into structured folders based on their extensions.
 
 ## Features
 
-- **Automatic Organization**: Moves files into categorized folders (Image, Video, Code, Document, Others).
-- **Duplicate Handling**: Automatically renames duplicate files to prevent overwriting (e.g., `file(1).txt`).
-- **Customizable**: Easily extensible mapping of file extensions to categories.
-- **Test Data Generator**: Includes a script to generate dummy files for testing.
+- **GUI**: Simple interface to manage organization.
+- **Automatic Sorting**: Moves files into categories like Images, Videos, Documents, etc.
+- **Safe**: Handles duplicate filenames automatically.
+- **Customizable**: Add or remove file mappings.
 
-## Supported File Types
+## Installation
 
-The script currently supports the following categories and extensions:
-
-- **Image**: `.jpg`, `.jpeg`, `.bmp`, `.png`
-- **Video**: `.mp4`, `.avi`, `.mov`, `.mkv`
-- **Code**: `.html`, `.htm`, `.css`, `.c`, `.cpp`, `.js`, `.ts`, `.py`
-- **Document**: `.csv`, `.txt`
-- **Others**: Any other file extension not listed above.
+1. Clone the repository.
+2. Ensure Python 3.x is installed.
 
 ## Usage
 
-### Prerequisites
+### Graphical Interface (Recommended)
 
-- Python 3.x installed on your system.
+1. Run the UI script:
+   ```bash
+   python ui.py
+   ```
+2. Select your **Input Directory** (files to organize) and **Output Directory**.
+3. Click **Organize**.
 
-### Running the Organizer
+### Command Line Interface
 
-Run the `file_organizer.py` script with the input directory (files to organize) and the output directory (where organized folders will be created).
+Run the script with input and output directories:
 
 ```bash
 python file_organizer.py <input_dir> <output_dir>
 ```
 
-**Example:**
-
+Example:
 ```bash
-python file_organizer.py ./downloads ./organized_downloads
+python file_organizer.py ./downloads ./clean_downloads
 ```
 
-### Generating Test Files
+## Testing
 
-You can use `create_files.py` to generate test files in a directory to verify the organizer's functionality.
-
-```bash
-python create_files.py <target_dir>
-```
-
-**Example:**
+You can generate dummy files to test the tool:
 
 ```bash
 python create_files.py ./test_data
@@ -55,4 +48,4 @@ python create_files.py ./test_data
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License. See the [LICENSE](LICENSE) file for details.
