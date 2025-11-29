@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from file_organizer import DEFAULT_type2ext
+
 
 class UI:
     def __init__(self, root) -> None:
@@ -21,6 +23,7 @@ class UI:
         self.root.configure(bg="#f0f0f0")
 
         self.create_widgets()
+        self.show_default_data()
 
     def create_widgets(self):
         # Main Container
@@ -120,6 +123,16 @@ class UI:
         ttk.Button(btn_frame, text="Remove", command=self.remove_selected).pack(
             side=tk.LEFT, padx=5
         )
+        ttk.Button(btn_frame, text="Organize", command=self.init_organizer).pack(
+            side=tk.LEFT, padx=5
+        )
+
+    def show_default_data(self):
+        for type in DEFAULT_type2ext:
+            for ext in DEFAULT_type2ext[type]:
+                self.tree.insert("", tk.END, values=(ext, type))
+        
+        return
 
     def browse_input_dir(self):
         directory = filedialog.askdirectory()
@@ -151,11 +164,15 @@ class UI:
             values = self.tree.item(item, "values")
             if values[0] == ext:
                 self.tree.item(item, values=(ext, folder))
+                
                 found = True
                 break
         # If not found, insert a new row
         if not found:
             self.tree.insert("", tk.END, values=(ext, folder))
+
+        self.update_default(ext=ext, type=folder)
+
         # Clear the entry fields
         self.ext_entry_text.set("")
         self.folder_entry_text.set("")
@@ -164,9 +181,32 @@ class UI:
         selected = self.tree.selection()
         if selected:
             self.tree.delete(selected)
+            ext, type = self.tree.item(selected, "values")
+            self.remove_default(ext=ext, type=type)
         else:
             messagebox.showwarning("Selection Error", "Please select an item to remove")
 
+    def init_organizer(self):
+        from file_organizer import organizer
+
+        organizer(input_dir=self.input_dir_var.get(), output_dir=self.output_dir_var.get())
+
+        return
+    
+
+    def update_default(self, ext, type):
+        values: list = DEFAULT_type2ext[type]
+        if values:
+            DEFAULT_type2ext[type].append(ext)
+        else:
+            DEFAULT_type2ext[type] = ext
+
+
+    def remove_default(self, ext, type):
+        try:
+            DEFAULT_type2ext[type].remove(ext)
+        except ValueError:
+            return
 
 if __name__ == "__main__":
     root = tk.Tk()
