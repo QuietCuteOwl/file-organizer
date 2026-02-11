@@ -94,4 +94,4 @@ if __name__ == '__main__':
         print("Invalid input dir")
         exit(2)
 
-    organizer(inpur_dir=input_dir, output_dir=output_dir)
+    organizer(input_dir=input_dir, output_dir=output_dir)
